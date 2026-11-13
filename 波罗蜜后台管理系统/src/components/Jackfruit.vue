@@ -264,7 +264,7 @@ export default {
         formData.append('category_id',this.addProductForm.category_id)
         this.$axios.post("http://localhost:8082/jackfruit/add",formData)
             .then(res => {
-              this.jackfruits[index]=res.data.data
+              this.jackfruits.push(res.data.data)
             })
             this.showDialog()
       },
@@ -319,7 +319,7 @@ export default {
               alert('查无此人')
               this.jackfruits=this.servedJackfruits
             }
-            this.searchIndex.name=''
+            this.searchedIndex.name=''
       },
       clearSearch(){
          this.jackfruits=this.servedJackfruits
@@ -339,4 +339,3 @@ export default {
     },
 }
 </script>
-

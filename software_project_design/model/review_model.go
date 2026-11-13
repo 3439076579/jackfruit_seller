@@ -8,6 +8,7 @@ type ReviewModel struct {
 	JackfruitID uint   `json:"jackfruit_id" gorm:"index;uniqueIndex:idx_user_jackfruit"`
 	Rating      int    `json:"rating" gorm:"not null;type:TINYINT"`
 	Content     string `json:"content" gorm:"type:varchar(255)"`
+	User        *UserModel `json:"user" gorm:"foreignKey:UserID;references:ID"`
 }
 
 func (ReviewModel) TableName() string {

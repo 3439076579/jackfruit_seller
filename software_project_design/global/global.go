@@ -35,7 +35,6 @@ func OpenMySQL(dsn string) {
 	s.SetMaxOpenConns(10)
 	s.SetMaxIdleConns(5)
 	GlobalDB = db
-	return
 }
 func ShutDown() {
 	Logger.Sync()

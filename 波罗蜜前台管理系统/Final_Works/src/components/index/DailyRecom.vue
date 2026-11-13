@@ -35,6 +35,31 @@
 				<p>Feature:{{selectedJackfruit.feature}}</p>
 						<hr/>
 				<img :src="selectedJackfruit.image" width="300" height="200">
+				<el-divider content-position="left">商品评价</el-divider>
+				<div class="reviewList">
+					<div v-for="review in reviews" :key="review.ID" class="reviewItem">
+						<div class="reviewHead">
+							<el-rate :value="review.rating" disabled></el-rate>
+							<span class="reviewUser">{{ review.user ? review.user.username : '匿名' }}</span>
+							<span class="reviewTime">{{ (review.CreatedAt || '').slice(0,10) }}</span>
+						</div>
+						<p class="reviewContent">{{ review.content }}</p>
+					</div>
+					<p v-if="reviews.length===0" class="noReview">暂无评价，快来抢首评吧~</p>
+				</div>
+				<el-divider content-position="left">我要评价</el-divider>
+				<el-form :model="reviewForm" label-width="60px" size="small">
+					<el-form-item label="评分">
+						<el-rate v-model="reviewForm.rating" show-text></el-rate>
+					</el-form-item>
+					<el-form-item label="内容">
+						<el-input type="textarea" v-model.trim="reviewForm.content" :rows="2"></el-input>
+					</el-form-item>
+					<el-form-item>
+						<el-button type="primary" @click="submitReview">提交评价</el-button>
+						<el-button @click="resetReviewForm">重置</el-button>
+					</el-form-item>
+				</el-form>
 		</el-dialog>
 
 		<el-dialog title="订单信息" :visible.sync="TokenVisible" :before-close="handleClose">
@@ -76,6 +101,11 @@ export default{
 			jackfruits:[],
 			DetaildialogVisible:false,
 			selectedJackfruit:Object,
+			reviews:[],
+			reviewForm:{
+				rating:5,
+				content:'',
+			},
 			TokenVisible:false,
 			token:{
 				willBuyJackfruit:Object,
@@ -118,6 +148,50 @@ export default{
 		detailInfo(item){
 			this.DetaildialogVisible=true
 			this.selectedJackfruit=item
+			this.loadReviews()
+		},
+		loadReviews(){
+			this.$axios.get("http://localhost:8082/review/list?jackfruit_id="+this.selectedJackfruit.ID)
+			.then(res => {
+				this.reviews=res.data.data||[]
+			})
+			.catch(err => {
+				console.error(err);
+			})
+		},
+		submitReview(){
+			const userId = localStorage.getItem("id")
+			if(!userId){
+				this.$message({type:'warning',message:'请先登录后再评价'})
+				this.$router.push('/login')
+				return
+			}
+			if(this.reviewForm.content===''){
+				this.$message({type:'warning',message:'请输入评价内容'})
+				return
+			}
+			const formData = new FormData();
+			formData.append('jackfruit_id',this.selectedJackfruit.ID)
+			formData.append('user_id',userId)
+			formData.append('rating',this.reviewForm.rating)
+			formData.append('content',this.reviewForm.content)
+			this.$axios.post("http://localhost:8082/review/add",formData)
+			.then(res => {
+				if(res.data.status_code===-1){
+					this.$message({type:'warning',message:res.data.message})
+					return
+				}
+				this.$message({type:'success',message:'评价成功'})
+				this.resetReviewForm()
+				this.loadReviews()
+			})
+			.catch(err => {
+				console.error(err);
+			})
+		},
+		resetReviewForm(){
+			this.reviewForm.rating=5
+			this.reviewForm.content=''
 		},
 		buyJackfruit(item){
 			this.TokenVisible=true;
@@ -241,5 +315,39 @@ export default{
 	}
 	.el-button:hover{
 		color: #1cce66;
+	}
+	.reviewList{
+		max-height: 240px;
+		overflow-y: auto;
+		text-align: left;
+	}
+	.reviewItem{
+		padding: 8px 0;
+		border-bottom: 1px dashed #dcdfe6;
+	}
+	.reviewHead{
+		display: flex;
+		align-items: center;
+	}
+	.reviewUser{
+		margin-left: 10px;
+		font-weight: bold;
+		font-size: 14px;
+	}
+	.reviewTime{
+		margin-left: auto;
+		color: #909399;
+		font-size: 12px;
+	}
+	.reviewContent{
+		margin-top: 5px;
+		font-size: 14px;
+		color: #606266;
+	}
+	.noReview{
+		color: #909399;
+		font-size: 13px;
+		text-align: center;
+		padding: 10px 0;
 	}
 </style>

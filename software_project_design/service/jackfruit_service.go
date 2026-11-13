@@ -10,6 +10,12 @@ type JackfruitService struct{}
 
 func (j *JackfruitService) AddProductService(jackfruit *model.JackfruitModel) (*model.JackfruitModel, error) {
 	err := global.GlobalDB.Create(jackfruit).Error
+	if err != nil {
+		return nil, err
+	}
+	err = global.GlobalDB.Preload("Category").
+		Where("id=?", jackfruit.ID).
+		First(&jackfruit).Error
 	return jackfruit, err
 }
 func (j *JackfruitService) UpdateProductService(jackfruit *model.JackfruitModel) (*model.JackfruitModel, error) {

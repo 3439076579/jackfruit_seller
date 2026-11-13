@@ -12,6 +12,8 @@ type Router struct {
 	JackfruitGroup
 	OrderGroup
 	NotifyGroup
+	AnalyticsGroup
+	ReviewGroup
 }
 
 func InitRouter(engine *gin.Engine) {
@@ -20,6 +22,8 @@ func InitRouter(engine *gin.Engine) {
 	r.JackfruitGroup.register(engine)
 	r.OrderGroup.register(engine)
 	r.NotifyGroup.register(engine)
+	r.AnalyticsGroup.register(engine)
+	r.ReviewGroup.register(engine)
 	engine.Static("/static/", "./data/")
 	//engine.Group("*", middleware.Cors)
 }

@@ -17,5 +17,5 @@ type OrderModel struct {
 }
 
 func (o *OrderModel) TableName() string {
-	return "order"
+	return "orders"
 }

@@ -8,4 +8,5 @@ type Service struct {
 	OrderService
 	NotifyService
 	AnalyticsService
+	ReviewService
 }
