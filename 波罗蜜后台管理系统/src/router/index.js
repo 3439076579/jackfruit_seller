@@ -21,6 +21,14 @@ const router= new VueRouter({
             }
         },
         {
+            path:'/register',
+            name:'Register',
+            component:()=>import('../components/Register.vue'),
+            meta:{
+                title:'注册界面'
+            }
+        },
+        {
             path:'/Home',
             name:'Home',
             component:()=>import('../pages/Home.vue'),

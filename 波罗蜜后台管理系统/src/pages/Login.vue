@@ -12,11 +12,12 @@
             <el-input type="password" autocomplete="off" placeholder="请输入密码" v-model="user.password"></el-input>
           </el-form-item>
 
-          <el-form-item>
+          <el-form-item label-width="80px">
             <el-button type="primary" style="width: 100%; margin-top: 5px" @click="login">登录</el-button>
           </el-form-item>
+          <el-form-item label-width="80px">
             <span class="register-link" @click="goToRegister">注册</span>
-            
+          </el-form-item>
         </el-form>
       </el-row>
   </div>
@@ -73,13 +74,13 @@
 
 <style scoped>
 .login{
+  position: fixed;
   top:0;
   left:0;
-  right:0;
-  bottom:0;
-  width: 1520px;
-  height: 679px;
-  background-size:100% 100%;
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
   overflow: hidden;
   background-image: url("../assets/background.jpg");
   background-repeat: no-repeat ;
@@ -98,14 +99,10 @@ h3 {
   color: #0babeab8;
   font-size: 24px;
 }
-.el-button {
-
-  margin-left:-50px;
-}
-
 .register-link {
   color: blue;
   cursor: pointer;
+  float: right;
 }
 
 </style>
