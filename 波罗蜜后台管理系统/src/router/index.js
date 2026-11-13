@@ -75,6 +75,14 @@ const router= new VueRouter({
                         title:'波罗蜜管理'
                     }
                 },
+                {
+                    path:'Analytics',
+                    name:'Analytics',
+                    component:()=>import('../components/Analytics.vue'),
+                    meta:{
+                        title:'统计分析'
+                    }
+                },
             ]
         }
     ]

@@ -25,6 +25,10 @@
                 <i class="el-icon-setting"></i>
                 <span slot="title">订单管理</span>
             </el-menu-item>
+            <el-menu-item index="/Home/Analytics">
+                <i class="el-icon-data-analysis"></i>
+                <span slot="title">统计分析</span>
+            </el-menu-item>
           </el-menu>  
         </el-aside>
         <el-container>
