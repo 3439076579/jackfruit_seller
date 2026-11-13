@@ -4,7 +4,9 @@ import "gorm.io/gorm"
 
 type JackfruitModel struct {
 	gorm.Model
-	ProductName string `json:"name" gorm:"not null;type:VARCHAR(100)"`
+	CategoryId  uint          `json:"category_id" gorm:"index"`
+	Category    *CategoryModel `json:"category" gorm:"foreignKey:CategoryId;references:ID"`
+	ProductName string        `json:"name" gorm:"index;not null;type:VARCHAR(100)"`
 
 	//
 	Storage uint64  `json:"storage" gorm:"not null;type:INT"`

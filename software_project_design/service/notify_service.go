@@ -12,7 +12,10 @@ func (n *NotifyService) AddMessageService(notify *model.NotifyModel) (*model.Not
 	return notify, err
 }
 func (n *NotifyService) GetLastNotifyService() (*model.NotifyModel, error) {
-	var notifies []*model.NotifyModel
-	err := global.GlobalDB.Find(&notifies).Error
-	return notifies[len(notifies)-1], err
+	var notify = new(model.NotifyModel)
+	err := global.GlobalDB.Last(notify).Error
+	if err != nil {
+		return nil, err
+	}
+	return notify, nil
 }

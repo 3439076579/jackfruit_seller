@@ -7,4 +7,5 @@ type Controller struct {
 	jackfruitController
 	orderController
 	notifyController
+	analyticsController
 }

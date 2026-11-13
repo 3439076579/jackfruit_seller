@@ -7,4 +7,5 @@ type Service struct {
 	JackfruitService
 	OrderService
 	NotifyService
+	AnalyticsService
 }

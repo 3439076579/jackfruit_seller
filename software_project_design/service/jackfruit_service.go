@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"software_project_design/global"
 	"software_project_design/model"
 )
@@ -36,16 +37,38 @@ func (j *JackfruitService) UpdateProductService(jackfruit *model.JackfruitModel)
 	if jackfruit.ManagementInfo != "" {
 		searchedJackfruit.ManagementInfo = jackfruit.ManagementInfo
 	}
+	searchedJackfruit.CategoryId = jackfruit.CategoryId
 	err = global.GlobalDB.Save(&searchedJackfruit).Error
+	if err != nil {
+		return nil, err
+	}
+	err = global.GlobalDB.Preload("Category").
+		Where("id=?", searchedJackfruit.ID).
+		First(&searchedJackfruit).Error
 	return searchedJackfruit, err
 }
 func (j *JackfruitService) GetProductsAll() ([]*model.JackfruitModel, error) {
 	var products []*model.JackfruitModel
-	err := global.GlobalDB.Find(&products).Error
+	err := global.GlobalDB.Preload("Category").Find(&products).Error
 	return products, err
 }
 func (j *JackfruitService) DeleteJackfruitService(id uint) error {
 	err := global.GlobalDB.Where("id=?", id).
 		Delete(&model.JackfruitModel{}).Error
 	return err
+}
+
+func (j *JackfruitService) GetCategoriesService() ([]*model.CategoryModel, error) {
+	var categories []*model.CategoryModel
+	err := global.GlobalDB.Find(&categories).Error
+	return categories, err
+}
+
+func (j *JackfruitService) AddCategoryService(name string) (*model.CategoryModel, error) {
+	if name == "" {
+		return nil, errors.New("分类名不能为空")
+	}
+	category := &model.CategoryModel{CategoryName: name}
+	err := global.GlobalDB.Create(category).Error
+	return category, err
 }

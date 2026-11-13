@@ -20,6 +20,8 @@ func (j *jackfruitController) AddProduct(c *gin.Context) {
 	jackfruit.ManagementInfo = c.PostForm("management_info")
 	jackfruit.JackfruitFeature = c.PostForm("feature")
 	jackfruit.PlantIntro = c.PostForm("plant_intro")
+	categoryId, _ := strconv.ParseUint(c.PostForm("category_id"), 10, 64)
+	jackfruit.CategoryId = uint(categoryId)
 	image, err := c.FormFile("image")
 	if err != nil {
 		log.Println(err)
@@ -70,6 +72,8 @@ func (j *jackfruitController) UpdateProduct(c *gin.Context) {
 	jackfruit.ManagementInfo = c.PostForm("management_info")
 	jackfruit.JackfruitFeature = c.PostForm("feature")
 	jackfruit.PlantIntro = c.PostForm("plant_intro")
+	categoryId, _ := strconv.ParseUint(c.PostForm("category_id"), 10, 64)
+	jackfruit.CategoryId = uint(categoryId)
 	image, err := c.FormFile("image")
 	if image != nil {
 		file, _ := image.Open()
@@ -129,5 +133,39 @@ func (j *jackfruitController) DeleteJackfruit(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, &model.Response{
 		Code:    0,
 		Message: "success",
+	})
+}
+
+func (j *jackfruitController) GetAllCategories(c *gin.Context) {
+	categories, err := service.ServiceApi.GetCategoriesService()
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusOK, &model.Response{
+			Code:    -1,
+			Message: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, &model.Response{
+		Code:    0,
+		Message: "success",
+		Data:    categories,
+	})
+}
+
+func (j *jackfruitController) AddCategory(c *gin.Context) {
+	category, err := service.ServiceApi.AddCategoryService(c.PostForm("category_name"))
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusOK, &model.Response{
+			Code:    -1,
+			Message: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, &model.Response{
+		Code:    0,
+		Message: "success",
+		Data:    category,
 	})
 }

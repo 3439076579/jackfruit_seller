@@ -32,6 +32,17 @@
                   <el-input type="text" v-model.trim="addProductForm.name" autocomplete="off"></el-input>
                 </el-form-item>
 
+                <el-form-item label="种类" >
+                  <el-select v-model="addProductForm.category_id" placeholder="请选择种类" clearable style="width: 100%">
+                    <el-option v-for="cate in categories" :key="cate.ID" :label="cate.category_name" :value="cate.ID"></el-option>
+                  </el-select>
+                </el-form-item>
+
+                <el-form-item label="新建种类" >
+                  <el-input type="text" v-model.trim="newCategory" autocomplete="off" style="width: 55%"></el-input>
+                  <el-button type="primary" size="small" @click="addCategory">添加</el-button>
+                </el-form-item>
+
                 <el-form-item label="库存">
                   <el-input type="text" v-model.trim="addProductForm.storage" autocomplete="off"></el-input>
                 </el-form-item>
@@ -88,6 +99,16 @@
         <template slot-scope="scope">
           <span v-show="!jackfruits[scope.$index].isEdit">{{jackfruits[scope.$index].name}}</span>
           <el-input v-show="jackfruits[scope.$index].isEdit" v-model="TmpObj.name"></el-input>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="category"
+        label="种类">
+        <template slot-scope="scope">
+          <span v-show="!jackfruits[scope.$index].isEdit">{{ scope.row.category ? scope.row.category.category_name : '未分类' }}</span>
+          <el-select v-show="jackfruits[scope.$index].isEdit" v-model="TmpObj.category_id" placeholder="请选择种类" clearable size="small" style="width: 100%">
+            <el-option v-for="cate in categories" :key="cate.ID" :label="cate.category_name" :value="cate.ID"></el-option>
+          </el-select>
         </template>
       </el-table-column>
       <el-table-column
@@ -162,6 +183,8 @@ export default {
     data(){
       return{
         jackfruits:[],
+        categories:[],
+        newCategory:'',
         TmpObj:{
           name:'',
           image:null,
@@ -169,6 +192,7 @@ export default {
           price:'',
           feature:'',
           management_info:'',
+          category_id:'',
         },
         addProductForm:{
           name:'',
@@ -178,6 +202,7 @@ export default {
           feature:'',
           management_info:'',
           plant_intro:'',
+          category_id:'',
         },
         servedJackfruits:[],
         searchedIndex:{name:''},
@@ -192,6 +217,7 @@ export default {
       handleEdit(index){
         this.EditLock=true
         this.TmpObj=Object.assign({},this.jackfruits[index])
+        this.TmpObj.category_id=this.TmpObj.category_id||''
         this.$set(this.jackfruits[index],'isEdit',true)
       },
       SubmitUpdate(index){
@@ -202,9 +228,10 @@ export default {
         formData.append('image', this.TmpObj.image);
         formData.append('management_info',this.TmpObj.management_info)
         formData.append('feature',this.TmpObj.feature)
+        formData.append('category_id',this.TmpObj.category_id)
         this.$axios.post("http://localhost:8082/jackfruit/update",formData)
             .then(res => {
-              this.jackfruits[index]=res.data.data
+              this.$set(this.jackfruits,index,res.data.data)
               console.log(this.UserSet)
             })
             this.$set(this.jackfruits[index],'isEdit',false)
@@ -234,11 +261,32 @@ export default {
         formData.append('management_info',this.addProductForm.management_info)
         formData.append('feature',this.addProductForm.feature)
         formData.append('plant_intro',this.addProductForm.plant_intro)
+        formData.append('category_id',this.addProductForm.category_id)
         this.$axios.post("http://localhost:8082/jackfruit/add",formData)
             .then(res => {
               this.jackfruits[index]=res.data.data
             })
             this.showDialog()
+      },
+      addCategory(){
+        if(this.newCategory===''){
+          this.$message({type:'warning',message:'请输入分类名称'})
+          return
+        }
+        const formData = new FormData();
+        formData.append('category_name', this.newCategory);
+        this.$axios.post("http://localhost:8082/jackfruit/category/add",formData)
+            .then(res => {
+              if(res.data.status_code===-1){
+                this.$message({type:'warning',message:res.data.message})
+                return
+              }
+              this.$message({type:'success',message:'分类添加成功'})
+              this.newCategory=''
+              this.$axios.get("http://localhost:8082/jackfruit/categories").then((result)=>{
+                this.categories=result.data.data
+              })
+            })
       },
       deleteJackfruit(index){
          if(confirm('确认要下架该产品吗？')){
@@ -258,6 +306,7 @@ export default {
         this.addProductForm.feature=''
         this.addProductForm.management_info=''
         this.addProductForm.plant_intro=''
+        this.addProductForm.category_id=''
         this.addProductForm.image=null
       },
       searchProduct(){
@@ -283,6 +332,9 @@ export default {
         this.jackfruits=result.data.data
         this.servedJackfruits=result.data.data
         console.log(this.jackfruits)
+      })
+      this.$axios.get("http://localhost:8082/jackfruit/categories").then((result) => {
+        this.categories=result.data.data
       })
     },
 }
