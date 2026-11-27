@@ -151,17 +151,27 @@ def collect_environment_info(host: str, port: int, user: str, password: str) -> 
     finally:
         conn.close()
 
-    cpu = subprocess.check_output(["sysctl", "-n", "machdep.cpu.brand_string"], text=True).strip()
-    ncpu = subprocess.check_output(["sysctl", "-n", "hw.ncpu"], text=True).strip()
-    mem_bytes = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"], text=True).strip())
-    sw_vers = subprocess.check_output(["sw_vers", "-productVersion"], text=True).strip()
-    go_ver = subprocess.check_output(["go", "version"], text=True).strip()
-    node_ver = subprocess.check_output(["node", "--version"], text=True).strip()
+    def cmd(*args: str) -> str:
+        # Tolerate non-macOS hosts and missing toolchains instead of aborting the run.
+        try:
+            return subprocess.check_output(list(args), text=True, stderr=subprocess.DEVNULL).strip()
+        except (OSError, subprocess.CalledProcessError):
+            return "unknown"
+
+    cpu = cmd("sysctl", "-n", "machdep.cpu.brand_string")
+    if cpu == "unknown":
+        cpu = platform.processor() or platform.machine()
+    ncpu = os.cpu_count()
+    mem = cmd("sysctl", "-n", "hw.memsize")
+    sw_vers = cmd("sw_vers", "-productVersion")
+    os_name = f"macOS {sw_vers}" if sw_vers != "unknown" else f"{platform.system()} {platform.release()}"
+    go_ver = cmd("go", "version")
+    node_ver = cmd("node", "--version")
 
     return {
-        "os": f"macOS {sw_vers} ({platform.machine()})",
+        "os": f"{os_name} ({platform.machine()})",
         "cpu": f"{cpu} ({ncpu} cores)",
-        "memory_gb": round(mem_bytes / (1024**3), 1),
+        "memory_gb": round(int(mem) / (1024**3), 1) if mem.isdigit() else None,
         "mysql_version": mysql_ver,
         "innodb_buffer_pool_bytes": int(bp),
         "go_version": go_ver,
@@ -180,8 +190,13 @@ def main() -> None:
     parser.add_argument("--db", default=os.getenv("DB_NAME", "sf_project_bench"))
     parser.add_argument(
         "--handoff-dir",
-        default="/Users/avery/Desktop/5003/handoff",
+        default="./benchmark_output",
         help="Destination directory for raw benchmark evidence.",
+    )
+    parser.add_argument(
+        "--reseed-app-db",
+        action="store_true",
+        help="After benchmarking, DROP and re-seed the live application DB `sf_project` (small scale).",
     )
     args = parser.parse_args()
 
@@ -358,12 +373,15 @@ def main() -> None:
     (bm_dir / "explain_analyze_with_index.txt").write_text("\n".join(explain_with_idx_chunks), encoding="utf-8")
     (bm_dir / "dataset_scales.json").write_text(json.dumps(scale_counts_record, indent=2), encoding="utf-8")
 
-    # Finally seed the live application DB `sf_project` with Small (~10K) dataset for live UI demo
-    print("\n[3/3] Seeding live application DB `sf_project` (small, indexed) for UI & backend testing...")
-    app_counts = seed_database(
-        args.host, args.port, args.user, args.password, "sf_project", scale="small", with_indexes=True
-    )
-    print("Live `sf_project` counts:", app_counts)
+    # Optionally re-seed the live application DB `sf_project` (destructive: drops its tables)
+    if args.reseed_app_db:
+        print("\n[3/3] Re-seeding live application DB `sf_project` (small, indexed) for UI & backend testing...")
+        app_counts = seed_database(
+            args.host, args.port, args.user, args.password, "sf_project", scale="small", with_indexes=True
+        )
+        print("Live `sf_project` counts:", app_counts)
+    else:
+        print("\n[3/3] Skipped re-seeding `sf_project` (pass --reseed-app-db to enable).")
     print("\nAll benchmarks completed successfully.")
 
 

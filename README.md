@@ -32,7 +32,7 @@ jackfruit_seller/
 ├── software_project_design/           # Go backend (Gin + GORM + MySQL)
 │   ├── main.go                        # HTTP server entrypoint (localhost:8082)
 │   ├── go.mod / go.sum                # Go module dependencies
-│   ├── global/global.go               # MySQL connection init (supports DB_DSN env var) & AutoMigrate
+│   ├── global/global.go               # MySQL connection init (DB_DSN / DB_AUTO_MIGRATE env vars)
 │   ├── middleware/cors.go             # CORS middleware
 │   ├── model/                         # 6 GORM models (user, category, jackfruit, orders, review, notify)
 │   ├── router/                        # Route group definitions
@@ -87,11 +87,13 @@ python3 scripts/seed_data.py --user root --password "" --db sf_project_bench --s
 ## 5. Running the Application
 
 ### 5.1 Backend API (`http://localhost:8082`)
-`software_project_design/global/global.go` reads `DB_DSN` from the environment (falling back to the default local DSN if unset):
+`software_project_design/global/global.go` reads `DB_DSN` from the environment (falling back to a password-less local `root@127.0.0.1:3306/sf_project` DSN if unset):
 ```bash
 cd software_project_design
-DB_DSN="root:@tcp(127.0.0.1:3306)/sf_project?charset=utf8mb4&parseTime=True&loc=Local" go run .
+DB_DSN="root:<your-password>@tcp(127.0.0.1:3306)/sf_project?charset=utf8mb4&parseTime=True&loc=Local" go run .
 ```
+
+`database/schema.sql` is the source of truth for the schema. GORM `AutoMigrate` is therefore skipped when the tables already exist, because it would otherwise rewrite column types (e.g. `orders.user_address` → `longtext NULL`), drop `NOT NULL`/`DEFAULT` clauses and add duplicate indexes. It only runs automatically on an empty database. Override with `DB_AUTO_MIGRATE=true` (force) or `DB_AUTO_MIGRATE=false` (never).
 
 ### 5.2 Buyer Storefront (`http://localhost:8081` or `8080`)
 ```bash
@@ -124,6 +126,8 @@ Run the full automated evaluation suite (executes Q1–Q8, captures `EXPLAIN ANA
 ```bash
 python3 scripts/run_benchmarks.py --user root --password "" --handoff-dir ./benchmark_output
 ```
+
+Results are written to `./benchmark_output/` by default (git-ignored). The suite uses its own database (`--db`, default `sf_project_bench`) and leaves the application database `sf_project` untouched; add `--reseed-app-db` to also drop and re-seed `sf_project` with the Small dataset afterwards.
 
 Outputs generated:
 - `sample_queries/Q1.md` – `Q8.md` & `Q1.csv` – `Q8.csv`: SQL text, execution time, total rows, and result previews.
