@@ -1,2 +1,19 @@
 # WorkBuddy 本地工作记忆（含本地路径与分析，不进版本库）
 .workbuddy/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Build caches of the legacy Vue 2 frontends
+**/node_modules/.cache/
+**/dist/
+
+# Local benchmark output
+benchmark_output/
