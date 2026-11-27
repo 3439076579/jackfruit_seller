@@ -173,8 +173,9 @@
             return index+1;
           },
           deleteUser(index){
+            const targetId = this.UserSet[index].ID
             if(confirm('确认要删除该用户吗？')){
-              this.$axios.get("http://localhost:8082/user/delete?id="+(index+1)).then(res => {
+              this.$axios.get("http://localhost:8082/user/delete?id="+targetId).then(res => {
               this.UserSet.splice(index,1)
               console.log(this.UserSet)
             })
@@ -189,7 +190,7 @@
             this.$axios.post("http://localhost:8082/user/add?username="+this.incrementUserForm.username
             +"&password="+this.incrementUserForm.password+"&phone="+this.incrementUserForm.phone
             +"&email="+this.incrementUserForm.email).then(res => {
-              this.UserSet.push(x)
+              this.UserSet.push((res.data && res.data.data) ? res.data.data : x)
               console.log(this.UserSet)
             })
             this.showDialog()
@@ -234,11 +235,12 @@
             this.EditLock=false
           },
           SubmitUpdate(index){
-            this.$axios.post("http://localhost:8082/user/update_id?id="+(index+1)+"&username="
+            const targetId = this.TmpObj.ID || this.UserSet[index].ID
+            this.$axios.post("http://localhost:8082/user/update_id?id="+targetId+"&username="
             +this.TmpObj.username+"&password="+this.TmpObj.password+"&phone="+this.TmpObj.phone+
             "&email="+this.TmpObj.email)
             .then(res => {
-              this.UserSet[index]=res.data.data
+              this.$set(this.UserSet, index, res.data.data)
               console.log(this.UserSet)
             })
             this.$set(this.UserSet[index],'isEdit',false)
@@ -253,7 +255,7 @@
           .then((response) => {
             console.log(response)
             this.UserSet=response.data.data
-            this.ServedUserSet=result.data.data
+            this.ServedUserSet=response.data.data
           })
         }
 }

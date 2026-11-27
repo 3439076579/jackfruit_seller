@@ -78,17 +78,15 @@
 		},
 		mounted(){
 			this.$axios.get("http://localhost:8082/notify/last").then((result) => {
-				console.log(result)
-				this.message=result.data.data.Message
-				console.log(this.message)
-			 this.$notify({
-				title: '消息公告',
-				message: this.message,
-				duration: 0
-        	});
-		})
-
-		
+				if (result.data && result.data.data && result.data.data.Message) {
+					this.message=result.data.data.Message
+					this.$notify({
+						title: '消息公告',
+						message: this.message,
+						duration: 0
+					});
+				}
+			}).catch(() => {})
 		}
 	}
 </script>

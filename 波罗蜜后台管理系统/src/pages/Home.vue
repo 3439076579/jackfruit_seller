@@ -115,6 +115,7 @@
         name:'Home',
         data(){
           return {
+            username: localStorage.getItem('username') || 'admin',
             dialogVisible: false,
             ruleForm: {
               pass: '',

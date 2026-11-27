@@ -132,7 +132,7 @@
         prop="price"
         label="价格">
         <template slot-scope="scope">
-          <span v-show="!jackfruits[scope.$index].isEdit">{{jackfruits[scope.$index].price}}</span>
+          <span v-show="!jackfruits[scope.$index].isEdit">{{Number(jackfruits[scope.$index].price).toFixed(2)}}</span>
           <el-input v-show="jackfruits[scope.$index].isEdit" v-model="TmpObj.price"></el-input>
         </template>
       </el-table-column>
@@ -289,8 +289,9 @@ export default {
             })
       },
       deleteJackfruit(index){
+         const targetId = this.jackfruits[index].ID
          if(confirm('确认要下架该产品吗？')){
-              this.$axios.get("http://localhost:8082/jackfruit/delete?id="+(index+1)).then(res => {
+              this.$axios.get("http://localhost:8082/jackfruit/delete?id="+targetId).then(res => {
               this.jackfruits.splice(index,1)
               // console.log(this.UserSet)
             })

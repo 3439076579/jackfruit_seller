@@ -1,6 +1,7 @@
 package global
 
 import (
+	"os"
 	"software_project_design/model"
 
 	"go.uber.org/zap"
@@ -10,6 +11,7 @@ import (
 
 const (
 	ServerAddr = "http://localhost:8082/"
+	defaultDSN = "root:wjb20031205@tcp(localhost:3306)/sf_project?charset=utf8mb4&parseTime=True&loc=Local"
 )
 
 var (
@@ -19,8 +21,14 @@ var (
 
 func GlobalInit() {
 	Logger, _ = zap.NewProduction()
-	OpenMySQL("root:wjb20031205@tcp(localhost:3306)/sf_project?charset=utf8&parseTime=True&loc=Local")
-	GlobalDB.AutoMigrate(&model.UserModel{}, &model.JackfruitModel{}, &model.OrderModel{}, &model.NotifyModel{}, &model.CategoryModel{}, &model.ReviewModel{})
+	dsn := os.Getenv("DB_DSN")
+	if dsn == "" {
+		dsn = defaultDSN
+	}
+	OpenMySQL(dsn)
+	if GlobalDB != nil {
+		GlobalDB.AutoMigrate(&model.UserModel{}, &model.JackfruitModel{}, &model.OrderModel{}, &model.NotifyModel{}, &model.CategoryModel{}, &model.ReviewModel{})
+	}
 }
 
 func OpenMySQL(dsn string) {
@@ -28,10 +36,16 @@ func OpenMySQL(dsn string) {
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
-		Logger.Error("Connect to MySQL failed",
+		Logger.Fatal("Connect to MySQL failed",
 			zap.Error(err))
+		return
 	}
-	s, _ := db.DB()
+	s, err := db.DB()
+	if err != nil {
+		Logger.Fatal("Failed to retrieve underlying sql.DB",
+			zap.Error(err))
+		return
+	}
 	s.SetMaxOpenConns(10)
 	s.SetMaxIdleConns(5)
 	GlobalDB = db

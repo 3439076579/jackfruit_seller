@@ -44,22 +44,16 @@
 						</el-table-column>
 						<el-table-column label="商品简介" prop="jackfruit.feature" />
 						<el-table-column label="单价" prop="jackfruit.price" width="90" header-align="center" align="right">
-							<!-- <div>￥{{ scope.row.price }}</div> -->
+							<template slot-scope="scope">
+								<span>{{ scope.row.jackfruit ? Number(scope.row.jackfruit.price).toFixed(2) : '0.00' }}</span>
+							</template>
 						</el-table-column>
 						<el-table-column label="数量" prop="quantity" width="100">
-							<!-- <template slot-scope="scope">
-								<div class="amount-warp">
-									<input class="border" @input="cartGoodsAmountChange($event,scope.row)"
-										v-model="scope.row.amount" />
-									<div class="quick-button">
-										<i class="border el-icon-arrow-up" @click="addAmountCount(scope.row)"></i>
-										<i class="border el-icon-arrow-down"
-											@click="subtractAmountCount(scope.row)"></i>
-									</div>
-								</div>
-							</template> -->
 						</el-table-column>
 						<el-table-column label="小计" width="90" header-align="center" align="right" prop="total">
+							<template slot-scope="scope">
+								<span>{{ Number(scope.row.total || 0).toFixed(2) }}</span>
+							</template>
 						</el-table-column>
 						<!-- <el-table-column label="操作" width="80" align="center">
 							<template slot-scope="scope">

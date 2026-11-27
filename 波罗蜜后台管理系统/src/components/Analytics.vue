@@ -7,7 +7,11 @@
           <el-table-column label="排名" type="index" :index="i=>i+1" width="60"></el-table-column>
           <el-table-column prop="product_name" label="产品名"></el-table-column>
           <el-table-column prop="total_sales" label="总销量" width="90"></el-table-column>
-          <el-table-column prop="total_revenue" label="总销售额" width="110"></el-table-column>
+          <el-table-column prop="total_revenue" label="总销售额" width="110">
+            <template slot-scope="scope">
+              <span>{{ Number(scope.row.total_revenue || 0).toFixed(2) }}</span>
+            </template>
+          </el-table-column>
         </el-table>
       </el-col>
       <el-col :span="8" :offset="1">
@@ -15,7 +19,11 @@
         <el-table :data="categoryRevenue" stripe size="small" border>
           <el-table-column prop="category_name" label="分类"></el-table-column>
           <el-table-column prop="order_count" label="订单数" width="90"></el-table-column>
-          <el-table-column prop="total_revenue" label="总销售额" width="110"></el-table-column>
+          <el-table-column prop="total_revenue" label="总销售额" width="110">
+            <template slot-scope="scope">
+              <span>{{ Number(scope.row.total_revenue || 0).toFixed(2) }}</span>
+            </template>
+          </el-table-column>
         </el-table>
       </el-col>
       <el-col :span="6" :offset="1">
@@ -31,7 +39,11 @@
         </el-form>
         <el-table :data="highRating" stripe size="small" border>
           <el-table-column prop="product_name" label="产品名"></el-table-column>
-          <el-table-column prop="avg_rating" label="均分" width="70"></el-table-column>
+          <el-table-column prop="avg_rating" label="均分" width="70">
+            <template slot-scope="scope">
+              <span>{{ Number(scope.row.avg_rating || 0).toFixed(2) }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="review_count" label="评价数" width="80"></el-table-column>
         </el-table>
       </el-col>

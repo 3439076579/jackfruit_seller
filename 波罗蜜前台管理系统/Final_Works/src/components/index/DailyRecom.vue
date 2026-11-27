@@ -5,7 +5,7 @@
 			<img :src=item.image>
 			<p>
 				{{item.name}}
-				价格:{{item.price}}
+				价格:{{Number(item.price).toFixed(2)}}
 				库存:{{item.storage}}
 			</p>
 
@@ -19,6 +19,7 @@
 		<el-dialog
 		title="详细信息"
 		:visible.sync="DetaildialogVisible"
+		:append-to-body="true"
 		width="50%"
 		height="100%"
 		>
@@ -26,7 +27,7 @@
 				<hr/>
 				<p>Storage: {{ selectedJackfruit.storage }}</p>
 				<hr/>
-				<p>Price: {{ selectedJackfruit.price }}</p>
+				<p>Price: {{ Number(selectedJackfruit.price || 0).toFixed(2) }}</p>
 						<hr/>
 				<p>Managment_Info:{{selectedJackfruit.management_info}}</p>
 						<hr/>
@@ -62,7 +63,7 @@
 				</el-form>
 		</el-dialog>
 
-		<el-dialog title="订单信息" :visible.sync="TokenVisible" :before-close="handleClose">
+		<el-dialog title="订单信息" :visible.sync="TokenVisible" :append-to-body="true" :before-close="handleClose">
 		<el-form :model="token" :rules="rules">
 			<el-form-item label="收货地址" :label-width="formLabelWidth" prop="address">
 			<el-input  v-model="token.address" autocomplete="off"></el-input>
@@ -248,7 +249,7 @@ export default{
 	mounted(){
 		this.$axios.get("http://localhost:8082/jackfruit/list")
 		.then(res => {
-			if (res.data.statud_code==-1){
+			if (res.data.status_code==-1){
 				this.$message({
 						type:'error',
 						message:"获取商品信息失败",

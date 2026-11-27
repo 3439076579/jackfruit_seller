@@ -86,6 +86,9 @@
 						message:"账号或密码有误"
 					})
 					}else{
+						if (res.data && res.data.data && res.data.data.ID) {
+							localStorage.setItem('id', res.data.data.ID)
+						}
 						let path='/Index/'+this.ruleForm.username
 						this.$router.push(path);
 					}
