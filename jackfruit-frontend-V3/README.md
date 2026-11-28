@@ -22,17 +22,16 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
-默认走**内置 Mock**，不需要后端和数据库，登录账号 `admin` / `123456`。
-终端出现 `[mock] 已启用内存 Mock 接口` 即为生效。
+`.env.development` 默认 `VITE_USE_MOCK=false`，即接真实后端（需先启动 Go 服务，见下）。想不依赖后端看界面，把它改成 `true` 走**内置 Mock**，终端出现 `[mock] 已启用内存 Mock 接口` 即为生效。登录账号 `admin` / `123456`。
 
-要接真实后端，改 `.env.development` 里 `VITE_USE_MOCK=false`，并启动 Go 服务：
+启动 Go 服务：
 
 ```bash
 cd ../software_project_design
 go run main.go     # http://localhost:8082
 ```
 
-两种模式的完整操作步骤、MySQL 建库建表、常见错误排查，见 **[docs/运行指南.md](docs/运行指南.md)**。
+两种模式的完整操作步骤、MySQL 建库建表、常见错误排查，见 **[docs/启动方案.md](docs/启动方案.md)**。
 
 其他命令：`npm run build`（含类型检查）、`npm run type-check`、`npm run lint`、`npm run format`。
 

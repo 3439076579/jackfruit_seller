@@ -22,8 +22,8 @@ func (u *UserService) RegisterService(user *model.UserModel) (*model.UserModel, 
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrDuplicateRegistered
 	}
-	err = global.GlobalDB.Create(&user).Error
-	return searchedUser, err
+	err = global.GlobalDB.Create(user).Error
+	return user, err
 }
 
 func (u *UserService) LoginService(user *model.UserModel) (*model.UserModel, error) {
@@ -107,6 +107,6 @@ func (u *UserService) AddUserService(user *model.UserModel) (*model.UserModel, e
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrDuplicateRegistered
 	}
-	err = global.GlobalDB.Create(&user).Error
-	return searchedUser, err
+	err = global.GlobalDB.Create(user).Error
+	return user, err
 }
